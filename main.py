@@ -15,5 +15,7 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
+        elif event.type == pygame.VIDEORESIZE:
+            canvas.handle_resize(event.w, event.h)
     canvas.render(stats=(('FPS', fps),
                          ('Frame time', '%s ms' % delta_time)))

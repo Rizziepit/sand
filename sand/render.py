@@ -1,16 +1,20 @@
 import pygame
 
 
-class Canvas(pygame.Rect):
+class Canvas(object):
     FONT_NAMES = 'ubuntu,arial'
     FONT_SIZE = 14
     FONT_COLOUR = (255, 255, 255)
     STATS_BACKGROUND = (0, 0, 0)
 
     def __init__(self, width, height, background=(64, 64, 64)):
-        super(Canvas, self).__init__(0, 0, width, height)
-        self.surface = pygame.display.set_mode((width, height))
+        self.width = width
+        self.height = height
+        self.surface = pygame.display.set_mode((width, height), pygame.RESIZABLE)
         self.background = background
+        self.background_image = None
+        if type(self.background) not in (tuple, list):
+            self.scale_background_image()
         self.font = pygame.font.SysFont(Canvas.FONT_NAMES, Canvas.FONT_SIZE)
 
     def render(self, objects=[], stats={}):
@@ -22,12 +26,10 @@ class Canvas(pygame.Rect):
         pygame.display.flip()
 
     def render_background(self):
-        # if list/tuple the background is a colour
-        if type(self.background) in (tuple, list):
-            self.surface.fill(self.background, self)
-        # otherwise assume it is an image
+        if self.background_image:
+            self.surface.blit(self.background_image, (0, 0))
         else:
-            self.surface.blit(self.background, self)
+            self.surface.fill(self.background, (0, 0))
 
     def render_stats(self, stats):
         surfaces = []
@@ -71,3 +73,15 @@ class Canvas(pygame.Rect):
         self.surface.blit(stats_surface,
                           (self.width - stats_width - 4,
                            self.height - stats_height - 4))
+
+    def scale_background_image(self):
+        self.background_image = pygame.transform.smoothscale(
+            self.background,
+            (self.width, self.height)
+        )
+
+    def handle_resize(self, width, height):
+        self.width = width
+        self.height = height
+        self.surface = pygame.display.set_mode((width, height), pygame.RESIZABLE)
+        self.scale_background_image()
