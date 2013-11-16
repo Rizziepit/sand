@@ -2,10 +2,11 @@ import sys
 import pygame
 
 from sand.render import Canvas
+from sand.resources import load_image
 
 
 pygame.init()
-canvas = Canvas(800, 600)
+canvas = Canvas(800, 600, load_image('salvador_dali'))
 clock = pygame.time.Clock()
 
 while True:
