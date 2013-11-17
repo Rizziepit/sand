@@ -4,6 +4,7 @@ import pygame
 from sand.render import Canvas
 from sand.resources import load_image
 from sand.core import SandCurve
+from sand import event as s_event
 
 
 pygame.init()
@@ -21,22 +22,35 @@ while True:
     fps = clock.get_fps()
 
     # handle some events
+    game_events = {}
     for event in pygame.event.get():
+        # handle window events
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.VIDEORESIZE:
             canvas.handle_resize(event.w, event.h)
-        elif event.type == pygame.KEYDOWN:
-            keys_down.add(event.key)
-        elif event.type == pygame.KEYUP:
-            if event.key in keys_down:
-                # handle key press event
-                keys_down.remove(event.key)
-                if event.key == 27:
-                    sys.exit()
+        # handle game events
+        else:
+            game_events.setdefault(event.type, [])
+            game_events[event.type].append(event)
+            # additionally track KEYPRESS events (KEYDOWN followed by KEYUP)
+            if event.type == pygame.KEYDOWN:
+                keys_down.add(event.key)
+            elif event.type == pygame.KEYUP:
+                if event.key in keys_down:
+                    # handle key press event
+                    keys_down.remove(event.key)
+                    if event.key == 27:
+                        sys.exit()
+                    game_events.setdefault(s_event.KEYPRESS, [])
+                    game_events[s_event.KEYPRESS].append(pygame.event.Event(
+                        s_event.KEYPRESS,
+                        key=event.key,
+                        mod=event.mod,
+                    ))
 
     for obj in objects:
-        obj.update(delta_time)
+        obj.update(delta_time, game_events)
 
     canvas.render(
         objects,

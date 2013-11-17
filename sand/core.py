@@ -47,7 +47,7 @@ class GameObject(object):
 
         surface.blit(self.surface, (real_x, real_y))
 
-    def update(self, delta_time):
+    def update(self, delta_time, events):
         raise NotImplemented
 
 
@@ -93,5 +93,5 @@ class SandCurve(GameObject):
             self.surface.fill(SandCurve.COLOUR,
                               pygame.Rect(x, y, 1, real_height - y + 1))
 
-    def update(self, delta_time):
+    def update(self, delta_time, events):
         pass
