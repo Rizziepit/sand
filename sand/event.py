@@ -2,3 +2,5 @@ import pygame
 
 
 KEYPRESS = pygame.USEREVENT + 1
+MOUSEBUTTONDRAG = pygame.USEREVENT + 2
+MOUSEBUTTONCLICK = pygame.USEREVENT + 3

@@ -11,18 +11,24 @@ pygame.init()
 canvas = Canvas(800, 600, load_image('salvador_dali'))
 clock = pygame.time.Clock()
 keys_down = set()
+mouse_down = set()
 objects = [
     SandCurve(0, -0.8, 2, 0.4,
               num_points=32, amplitude=0.025),
 ]
 
 
-while True:
-    delta_time = clock.tick(60)
-    fps = clock.get_fps()
-
-    # handle some events
+def handle_events():
+    '''
+    Processes events on the event queue. Window-level
+    events are handled here (e.g. resize and exit). The
+    rest of the events are added to a game events dict
+    which game objects can use. Compound events, like
+    mouse drags, mouse clicks and key presses are added
+    to the game events dict.
+    '''
     game_events = {}
+
     for event in pygame.event.get():
         # handle window events
         if event.type == pygame.QUIT:
@@ -33,27 +39,62 @@ while True:
         else:
             game_events.setdefault(event.type, [])
             game_events[event.type].append(event)
-            # additionally track KEYPRESS events (KEYDOWN followed by KEYUP)
+            # track KEYPRESS events
+            # KEYPRESS: KEYDOWN + KEYUP
             if event.type == pygame.KEYDOWN:
                 keys_down.add(event.key)
             elif event.type == pygame.KEYUP:
                 if event.key in keys_down:
-                    # handle key press event
                     keys_down.remove(event.key)
+                    # handle window escape event
                     if event.key == 27:
                         sys.exit()
                     game_events.setdefault(s_event.KEYPRESS, [])
-                    game_events[s_event.KEYPRESS].append(pygame.event.Event(
-                        s_event.KEYPRESS,
-                        key=event.key,
-                        mod=event.mod,
-                    ))
+                    game_events[s_event.KEYPRESS].append(
+                        pygame.event.Event(s_event.KEYPRESS,
+                                           key=event.key,
+                                           mod=event.mod)
+                    )
+            # track MOUSEBUTTONDRAG and MOUSEBUTTONCLICK events
+            # MOUSEBUTTONDRAG: MOUSEBUTTONDOWN + MOUSEMOTION
+            # MOUSEBUTTONCLICK: MOUSEBUTTONDOWN + MOUSEBUTTONUP
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_down.add(event.button)
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button in mouse_down:
+                    mouse_down.remove(event.button)
+                    game_events.setdefault(s_event.MOUSEBUTTONCLICK, [])
+                    game_events[s_event.MOUSEBUTTONCLICK].append(
+                        pygame.event.Event(s_event.MOUSEBUTTONCLICK,
+                                           button=event.button,
+                                           pos=event.pos)
+                    )
+            elif event.type == pygame.MOUSEMOTION:
+                for button in mouse_down:
+                    game_events.setdefault(s_event.MOUSEBUTTONDRAG, [])
+                    game_events[s_event.MOUSEBUTTONDRAG].append(
+                        pygame.event.Event(s_event.MOUSEBUTTONDRAG,
+                                           button=button,
+                                           pos=event.pos,
+                                           rel=event.rel)
+                    )
 
-    for obj in objects:
-        obj.update(delta_time, game_events)
+    return game_events
 
-    canvas.render(
-        objects,
-        (('FPS', fps),
-         ('Frame time', '%s ms' % delta_time))
-    )
+
+if __name__ == '__main__':
+    while True:
+        delta_time = clock.tick(60)
+        fps = clock.get_fps()
+
+        # handle events
+        game_events = handle_events()
+
+        for obj in objects:
+            obj.update(delta_time, game_events)
+
+        canvas.render(
+            objects,
+            (('FPS', fps),
+             ('Frame time', '%s ms' % delta_time))
+        )
