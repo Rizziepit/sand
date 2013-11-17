@@ -3,14 +3,17 @@ import pygame
 
 from sand.render import Canvas
 from sand.resources import load_image
-from sand.core import Sand
+from sand.core import SandCurve
 
 
 pygame.init()
 canvas = Canvas(800, 600, load_image('salvador_dali'))
 clock = pygame.time.Clock()
 keys_down = set()
-objects = [Sand(0, -0.8, 2, 0.4)]
+objects = [
+    SandCurve(0, -0.8, 2, 0.4,
+              num_points=32, amplitude=0.025),
+]
 
 
 while True:

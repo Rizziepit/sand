@@ -6,7 +6,7 @@ class Canvas(object):
     FONT_SIZE = 14
     FONT_COLOUR = (255, 255, 255)
     STATS_BACKGROUND = (0, 0, 0)
-    DISPLAY_FLAGS = pygame.FULLSCREEN|pygame.HWSURFACE
+    DISPLAY_FLAGS = pygame.HWSURFACE
 
     def __init__(self, width, height, background=(64, 64, 64)):
         self.width = width

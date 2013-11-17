@@ -1,4 +1,8 @@
+import math
+
 import pygame
+
+from sand.utils import cosine_interpolate
 
 
 class GameObject(object):
@@ -47,11 +51,47 @@ class GameObject(object):
         raise NotImplemented
 
 
-class Sand(GameObject):
-    COLOUR = (237, 201, 175)
+class SandCurve(GameObject):
+    COLOUR = (193, 154, 107)
+
+    def __init__(self, x, y, width, height,
+                 offset_y=0.1, num_points=16, amplitude=0.1):
+        super(SandCurve, self).__init__(x, y, width, height)
+        self.num_points = num_points
+        self.amplitude = amplitude
+        self.offset_y = offset_y
+        self.initialize_points()
+        self.x_per_point = float(self.width) / (self.num_points - 1)
+
+    def initialize_points(self):
+        self.points = []
+        val = self.amplitude
+        for i in range(self.num_points):
+            self.points.append(val)
+            val *= -1
+
+    def get_y(self, x):
+        '''
+        Do cosine interpolation to get
+        y for specified x on the curve.
+        '''
+        point_pos = x / self.x_per_point
+        y1_index = int(math.floor(point_pos))
+        y2_index = int(math.ceil(point_pos))
+        mu = point_pos - y1_index
+        y1 = self.points[y1_index]
+        y2 = self.points[y2_index]
+        return self.offset_y + cosine_interpolate(y1, y2, mu)
+
+    def draw(self):
+        real_width = self.surface.get_width()
+        real_height = self.surface.get_height()
+        for x in range(real_width):
+            x_in_object_space = float(x) / real_width * self.width
+            y_in_object_space = self.get_y(x_in_object_space)
+            y = (y_in_object_space * -1 + (self.height * 0.5)) / self.height * real_height
+            self.surface.fill(SandCurve.COLOUR,
+                              pygame.Rect(x, y, 1, real_height - y + 1))
 
     def update(self, delta_time):
         pass
-
-    def draw(self):
-        self.surface.fill(Sand.COLOUR)
