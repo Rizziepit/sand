@@ -6,11 +6,13 @@ class Canvas(object):
     FONT_SIZE = 14
     FONT_COLOUR = (255, 255, 255)
     STATS_BACKGROUND = (0, 0, 0)
+    DISPLAY_FLAGS = pygame.FULLSCREEN|pygame.HWSURFACE
 
     def __init__(self, width, height, background=(64, 64, 64)):
         self.width = width
         self.height = height
-        self.surface = pygame.display.set_mode((width, height), pygame.RESIZABLE)
+        self.surface = pygame.display.set_mode((width, height),
+                                               Canvas.DISPLAY_FLAGS)
         self.background = background
         self.background_image = None
         if type(self.background) not in (tuple, list):
@@ -83,5 +85,6 @@ class Canvas(object):
     def handle_resize(self, width, height):
         self.width = width
         self.height = height
-        self.surface = pygame.display.set_mode((width, height), pygame.RESIZABLE)
+        self.surface = pygame.display.set_mode((width, height),
+                                               Canvas.DISPLAY_FLAGS)
         self.scale_background_image()
