@@ -19,7 +19,7 @@ class Canvas(object):
             self.scale_background_image()
         self.font = pygame.font.SysFont(Canvas.FONT_NAMES, Canvas.FONT_SIZE)
 
-    def render(self, objects=[], stats={}):
+    def render(self, objects=[], stats=[]):
         self.render_background()
         for obj in objects:
             obj.render(self.surface)

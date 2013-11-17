@@ -3,16 +3,21 @@ import pygame
 
 from sand.render import Canvas
 from sand.resources import load_image
+from sand.core import Sand
 
 
 pygame.init()
 canvas = Canvas(800, 600, load_image('salvador_dali'))
 clock = pygame.time.Clock()
 keys_down = set()
+objects = [Sand(0, -0.8, 2, 0.4)]
+
 
 while True:
     delta_time = clock.tick(60)
     fps = clock.get_fps()
+
+    # handle some events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -26,5 +31,12 @@ while True:
                 keys_down.remove(event.key)
                 if event.key == 27:
                     sys.exit()
-    canvas.render(stats=(('FPS', fps),
-                         ('Frame time', '%s ms' % delta_time)))
+
+    for obj in objects:
+        obj.update(delta_time)
+
+    canvas.render(
+        objects,
+        (('FPS', fps),
+         ('Frame time', '%s ms' % delta_time))
+    )
